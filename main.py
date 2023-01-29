@@ -2,13 +2,13 @@ from lxml import etree
 from io import StringIO
 import json
 import os
-import sys
-import Parser
+import parser
+import config
 
 
 if __name__ == '__main__':
     print(" Opening browser. Please, wait this may take a while...")
-    driver = Parser.UnDetChrome()
+    driver = parser.UnDetChrome()
     print(" Opened.")
 
     while True:
@@ -25,11 +25,14 @@ if __name__ == '__main__':
         print()
         print(" Collecting data...")
 
-        if os.path.exists('data/start_from.lnk'):
-            with open('data/start_from.lnk', 'rt') as f:
+        if not os.path.exists(config.DATA_PATH):
+            os.mkdir(config.DATA_PATH)
+
+        if os.path.exists(config.START_FROM):
+            with open(config.START_FROM, 'rt') as f:
                 link = f.read()
         else:
-            link = 'https://onlyfinder.com/new-free/profiles/'
+            link = config.BASE_URL
 
         html = driver.parse(link, timer=timer)
 
@@ -40,8 +43,8 @@ if __name__ == '__main__':
 
         result = []
 
-        if os.path.exists('result.json'):
-            with open('result.json', 'r', encoding='UTF-8') as filehandle:
+        if os.path.exists(config.PRODUCT):
+            with open(config.PRODUCT, 'r', encoding='UTF-8') as filehandle:
                 result = json.load(filehandle)
 
         counter = 0
@@ -62,12 +65,11 @@ if __name__ == '__main__':
                               )
 
         if result:
-            with open('result.json', 'w', encoding='UTF-8') as filehandle:
+            with open(config.PRODUCT, 'w', encoding='UTF-8') as filehandle:
                 json.dump(result, ensure_ascii=False, indent=4, fp=filehandle)
 
         print()
         print(f' {counter} items added to result.json. {len(result)} records total.')
-
 
         print()
         cmd = input(' Keep on? (any key to continue)\n "q" or "e" for "quit"\t').casefold().strip()
